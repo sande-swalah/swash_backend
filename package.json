@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "migrate": "node ./scripts/run-migrate.js",
+    "migrate:create": "node ./scripts/create-migration.js",
+    "health-check": "node ./scripts/health-check.js",
+    "seed:owner": "node ./scripts/seed-owner.js"
   },
   "repository": {
     "type": "git",
@@ -19,7 +23,15 @@
   },
   "homepage": "https://github.com/sande-swalah/swash_backend#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "dotenv": "^16.6.1",
-    "pg": "^8.23.0"
+    "express": "^5.2.1",
+    "joi": "^18.2.9",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.23.0",
+    "redis": "^5.0.0"
+  },
+  "devDependencies": {
+    "node-pg-migrate": "^9.0.0"
   }
 }
