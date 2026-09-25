@@ -120,9 +120,27 @@ POST /api/users/login
 ```http
 POST /api/users/register
 GET /api/users/me
+POST /api/rentals
+GET /api/rentals
+POST /api/units
+GET /api/units/mine
+GET /api/bills
+POST /api/bills
+GET /api/repairs
+POST /api/repairs
+PATCH /api/repairs/:id
+GET /api/payments
+POST /api/payments
+GET /api/alerts
+PATCH /api/alerts/:id/read
+GET /api/dashboard/owner
+GET /api/dashboard/tenant
+GET /api/dashboard/employee
 ```
 
 Registration is restricted to authenticated owners only.
+
+Payment recording updates the bill balance in a PostgreSQL transaction and creates an owner alert. M-Pesa and bank provider adapters are isolated under `app/payments`; credentials and callback contracts can be added without changing the payment domain flow.
 
 ## Notes
 

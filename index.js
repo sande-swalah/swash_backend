@@ -2,6 +2,15 @@ require('dotenv').config();
 
 const express = require('express');
 const userRoutes = require('./app/users/controller/user_routes');
+const rentalRoutes = require('./app/rentals/controller/rental_routes');
+const unitRoutes = require('./app/units/controller/unit_routes');
+const billRoutes = require('./app/bills/controller/bill_routes');
+const repairRoutes = require('./app/repairs/controller/repair_routes');
+const paymentRoutes = require('./app/payments/controller/payment_routes');
+const alertRoutes = require('./app/alerts_feature/controller/alert_routes');
+const ownerDashboardRoutes = require('./app/owner_dashboard feature/controller/dashboard_routes');
+const tenantDashboardRoutes = require('./app/tenants_dashboard_feature/controller/dashboard_routes');
+const employeeDashboardRoutes = require('./app/employees_dashboard_feature/controller/dashboard_routes');
 const pool = require('./db');
 
 const app = express();
@@ -27,25 +36,38 @@ app.get('/health', async (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/rentals', rentalRoutes);
+app.use('/api/units', unitRoutes);
+app.use('/api/bills', billRoutes);
+app.use('/api/repairs', repairRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/dashboard/owner', ownerDashboardRoutes);
+app.use('/api/dashboard/tenant', tenantDashboardRoutes);
+app.use('/api/dashboard/employee', employeeDashboardRoutes);
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
-
-const shutdown = async (signal) => {
-  console.log(`Received ${signal}. Shutting down gracefully...`);
-
-  server.close(async () => {
-    try {
-      await pool.end();
-      console.log('PostgreSQL pool closed');
-      process.exit(0);
-    } catch (error) {
-      console.error('Error closing PostgreSQL pool:', error.message);
-      process.exit(1);
-    }
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
   });
-};
 
-process.on('SIGINT', () => shutdown('SIGINT'));
-process.on('SIGTERM', () => shutdown('SIGTERM'));
+  const shutdown = async (signal) => {
+    console.log(`Received ${signal}. Shutting down gracefully...`);
+
+    server.close(async () => {
+      try {
+        await pool.end();
+        console.log('PostgreSQL pool closed');
+        process.exit(0);
+      } catch (error) {
+        console.error('Error closing PostgreSQL pool:', error.message);
+        process.exit(1);
+      }
+    });
+  };
+
+  process.on('SIGINT', () => shutdown('SIGINT'));
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+}
+
+module.exports = app;
