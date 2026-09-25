@@ -11,6 +11,7 @@ const alertRoutes = require('./app/alerts_feature/controller/alert_routes');
 const ownerDashboardRoutes = require('./app/owner_dashboard feature/controller/dashboard_routes');
 const tenantDashboardRoutes = require('./app/tenants_dashboard_feature/controller/dashboard_routes');
 const employeeDashboardRoutes = require('./app/employees_dashboard_feature/controller/dashboard_routes');
+const invitationRoutes = require('./app/invitations/controller/invitation_routes');
 const pool = require('./db');
 
 const app = express();
@@ -36,6 +37,7 @@ app.get('/health', async (req, res) => {
 });
 
 app.use('/api/users', userRoutes);
+app.use('/api/invitations', invitationRoutes);
 app.use('/api/rentals', rentalRoutes);
 app.use('/api/units', unitRoutes);
 app.use('/api/bills', billRoutes);

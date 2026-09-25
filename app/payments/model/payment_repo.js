@@ -56,4 +56,17 @@ async function listPayments(user) {
   return result.rows;
 }
 
-module.exports = { createPayment, listPayments };
+async function getPaymentReceipt(id, user) {
+  const condition = user.role === 'tenant' ? 'pay.tenant_user_id = $2' : 'p.owner_id = $2';
+  const result = await pool.query(
+    `SELECT pay.id, pay.reference, pay.amount, pay.provider, pay.status,
+            pay.paid_at AS "paidAt", pay.created_at AS "createdAt",
+            b.id AS "billId", b.type AS "billType", p.name AS "propertyName", u.unit_number AS "unitNumber"
+     FROM payments pay JOIN bills b ON b.id = pay.bill_id JOIN units u ON u.id = b.unit_id
+     JOIN properties p ON p.id = u.property_id WHERE pay.id = $1 AND ${condition}`,
+    [id, user.sub]
+  );
+  return result.rows[0] || null;
+}
+
+module.exports = { createPayment, listPayments, getPaymentReceipt };

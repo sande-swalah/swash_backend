@@ -7,5 +7,6 @@ router.use(authMiddleware);
 router.get('/', requireRole('owner', 'employee', 'tenant'), controller.list);
 router.post('/', requireRole('tenant'), controller.create);
 router.patch('/:id', requireRole('owner'), controller.update);
+router.patch('/:id/status', requireRole('employee'), controller.updateAssigned);
 
 module.exports = router;

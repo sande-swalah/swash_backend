@@ -1,5 +1,5 @@
-const { createRepairSchema, updateRepairSchema } = require('../model/repair_schema');
-const { createRepair, listRepairs, updateRepair } = require('../model/repair_repo');
+const { createRepairSchema, updateRepairSchema, employeeRepairSchema } = require('../model/repair_schema');
+const { createRepair, listRepairs, updateRepair, updateAssignedRepair } = require('../model/repair_repo');
 
 async function create(req, res) {
   const { error, value } = createRepairSchema.validate(req.body);
@@ -31,4 +31,15 @@ async function update(req, res) {
   }
 }
 
-module.exports = { create, list, update };
+async function updateAssigned(req, res) {
+  const { error, value } = employeeRepairSchema.validate(req.body);
+  if (error) return res.status(400).json({ message: error.details[0].message });
+  try {
+    const repair = await updateAssignedRepair({ ...value, id: req.params.id, employeeId: req.user.sub });
+    return repair ? res.json({ repair }) : res.status(404).json({ message: 'Assigned repair not found' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Unable to update assigned repair' });
+  }
+}
+
+module.exports = { create, list, update, updateAssigned };

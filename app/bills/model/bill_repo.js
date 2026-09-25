@@ -5,7 +5,9 @@ async function createBill({ unitId, amount, type, dueDate, ownerId }) {
     `INSERT INTO bills (unit_id, amount, type, status, due_date)
      SELECT $1, $2, $3, 'pending', $4
      WHERE EXISTS (SELECT 1 FROM units u JOIN properties p ON p.id = u.property_id
-                   WHERE u.id = $1 AND p.owner_id = $5)
+                   WHERE u.id = $1 AND (p.owner_id = $5 OR EXISTS (
+                     SELECT 1 FROM employee_properties ep WHERE ep.property_id = p.id AND ep.employee_id = $5
+                   )))
      RETURNING id, unit_id AS "unitId", amount, type, status, due_date AS "dueDate"`,
     [unitId, amount, type, dueDate, ownerId]
   );
@@ -13,7 +15,11 @@ async function createBill({ unitId, amount, type, dueDate, ownerId }) {
 }
 
 async function listBills(user) {
-  const condition = user.role === 'tenant' ? 'tp.user_id = $1' : 'p.owner_id = $1';
+  const condition = user.role === 'tenant'
+    ? 'tp.user_id = $1'
+    : user.role === 'employee'
+      ? 'EXISTS (SELECT 1 FROM employee_properties ep WHERE ep.property_id = p.id AND ep.employee_id = $1)'
+      : 'p.owner_id = $1';
   const result = await pool.query(
     `SELECT b.id, b.unit_id AS "unitId", b.amount, b.type, b.status,
             b.due_date AS "dueDate", COALESCE(SUM(pay.amount) FILTER (WHERE pay.status = 'confirmed'), 0) AS "paidAmount"

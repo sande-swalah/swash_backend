@@ -1,5 +1,5 @@
 const { paymentSchema } = require('../model/payment_schema');
-const { createPayment, listPayments } = require('../model/payment_repo');
+const { createPayment, listPayments, getPaymentReceipt } = require('../model/payment_repo');
 
 async function create(req, res) {
   const { error, value } = paymentSchema.validate(req.body);
@@ -20,4 +20,13 @@ async function list(req, res) {
   }
 }
 
-module.exports = { create, list };
+async function receipt(req, res) {
+  try {
+    const payment = await getPaymentReceipt(req.params.id, req.user);
+    return payment ? res.json({ receipt: payment }) : res.status(404).json({ message: 'Receipt not found' });
+  } catch (err) {
+    return res.status(500).json({ message: 'Unable to load receipt' });
+  }
+}
+
+module.exports = { create, list, receipt };

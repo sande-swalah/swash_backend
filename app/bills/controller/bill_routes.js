@@ -4,7 +4,7 @@ const { authMiddleware, requireRole } = require('../../common/middleware/auth');
 
 const router = express.Router();
 router.use(authMiddleware);
-router.get('/', requireRole('owner', 'tenant'), controller.list);
-router.post('/', requireRole('owner'), controller.create);
+router.get('/', requireRole('owner', 'employee', 'tenant'), controller.list);
+router.post('/', requireRole('owner', 'employee'), controller.create);
 
 module.exports = router;

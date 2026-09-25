@@ -12,12 +12,25 @@ async function createUnit({ propertyId, unitNumber, rentAmount, ownerId }) {
 
 async function listUnits(propertyId, ownerId) {
   const result = await pool.query(
-    `SELECT u.id, u.property_id AS "propertyId", u.unit_number AS "unitNumber",
-            u.rent_amount AS "rentAmount", tp.user_id AS "tenantUserId"
+        `SELECT u.id, u.property_id AS "propertyId", u.unit_number AS "unitNumber",
+          u.rent_amount AS "rentAmount", u.is_occupied AS "isOccupied", tp.user_id AS "tenantUserId"
      FROM units u JOIN properties p ON p.id = u.property_id
      LEFT JOIN tenant_profiles tp ON tp.unit_id = u.id
      WHERE u.property_id = $1 AND p.owner_id = $2 ORDER BY u.unit_number`,
     [propertyId, ownerId]
+  );
+  return result.rows;
+}
+
+async function listEmployeeUnits(employeeId) {
+  const result = await pool.query(
+    `SELECT u.id, u.property_id AS "propertyId", u.unit_number AS "unitNumber",
+            u.rent_amount AS "rentAmount", u.is_occupied AS "isOccupied",
+            p.name AS "propertyName", p.address
+     FROM employee_properties ep JOIN properties p ON p.id = ep.property_id
+     JOIN units u ON u.property_id = p.id WHERE ep.employee_id = $1
+     ORDER BY p.name, u.unit_number`,
+    [employeeId]
   );
   return result.rows;
 }
@@ -33,4 +46,4 @@ async function getTenantUnit(userId) {
   return result.rows[0] || null;
 }
 
-module.exports = { createUnit, listUnits, getTenantUnit };
+module.exports = { createUnit, listUnits, getTenantUnit, listEmployeeUnits };

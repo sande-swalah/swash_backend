@@ -1,5 +1,5 @@
 const { unitSchema } = require('../model/unit_schema');
-const { createUnit, listUnits, getTenantUnit } = require('../model/unit_repo');
+const { createUnit, listUnits, getTenantUnit, listEmployeeUnits } = require('../model/unit_repo');
 
 async function create(req, res) {
   const { error, value } = unitSchema.validate(req.body);
@@ -29,4 +29,12 @@ async function mine(req, res) {
   }
 }
 
-module.exports = { create, list, mine };
+async function assigned(req, res) {
+  try {
+    return res.json({ units: await listEmployeeUnits(req.user.sub) });
+  } catch (err) {
+    return res.status(500).json({ message: 'Unable to load assigned units' });
+  }
+}
+
+module.exports = { create, list, mine, assigned };
